@@ -41,8 +41,12 @@ public class MovieListManager {
     private static final String TITLE = "Title";
     private static final String YEAR = "Year";
     private static final String POSTER = "Poster";
+    private static final String TOTAL_RESULTS = "totalResults";
 
     public static final String MOVIE_LIST = "movie_list";
+
+    public static final int NONE = Integer.MIN_VALUE;
+    public static int sTotalResults = NONE;
 
 
     private static final String ID = "imdbID";
@@ -86,10 +90,13 @@ public class MovieListManager {
                         public void onResponse(Call call, Response response) throws IOException {
                             if (response.isSuccessful()) {
                                 String responseBody = response.body().string();
-                                Log.d(TAG, "<><> response: " + responseBody);
+                                Log.d(TAG, "response: " + responseBody);
                                 try {
                                     JSONObject movieJsonObject = new JSONObject(responseBody);
                                     if (movieJsonObject != null) {
+                                        String totalResultsString = movieJsonObject.getString(TOTAL_RESULTS);
+                                        sTotalResults = Integer.valueOf(totalResultsString);
+
                                         List<Movie> movieList = getMovieListFromJsonObject(movieJsonObject);
 
                                         //set up the favorites

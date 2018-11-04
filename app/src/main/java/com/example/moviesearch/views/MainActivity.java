@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity implements
         mMovieSearchEditText = findViewById(R.id.search_text);
         mSearchButton = findViewById(R.id.search_button);
 
-
         mMovieAdapter = new MovieListAdapter(mMovieList, this);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mMovieRecyclerView.setLayoutManager(layoutManager);
@@ -61,8 +60,7 @@ public class MainActivity extends AppCompatActivity implements
         if (savedInstanceState != null) {
             List<Movie> savedMovieList = savedInstanceState.getParcelableArrayList(MovieListManager.MOVIE_LIST);
             if (savedMovieList != null && !savedMovieList.isEmpty()) {
-                showResultsView();
-                updateMovieList(savedMovieList);
+                loadSavedMovieData(savedMovieList);
             }
         }
 
@@ -93,7 +91,9 @@ public class MainActivity extends AppCompatActivity implements
         mScrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                loadMovieData(page);
+                if (totalItemsCount < MovieListManager.sTotalResults) {
+                    loadMovieData(page);
+                }
             }
         };
         mMovieRecyclerView.addOnScrollListener(mScrollListener);
@@ -105,15 +105,29 @@ public class MainActivity extends AppCompatActivity implements
         imm.hideSoftInputFromWindow(mMovieSearchEditText.getWindowToken(), 0);
 
         //Clear the data source and start loading results for new search
+        MovieListManager.sTotalResults = MovieListManager.NONE;
         mMovieList.clear();
         mScrollListener.resetState();
         loadMovieData(1);
     }
 
+    private void loadSavedMovieData(List<Movie> movieList) {
+        Log.d(TAG, "load saved movie data");
+        //Hide keyboard
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(mMovieSearchEditText.getWindowToken(), 0);
+
+        //Clear the data source and start loading results for new search
+        MovieListManager.sTotalResults = MovieListManager.NONE;
+        mMovieList.clear();
+        mScrollListener.resetState();
+        updateMovieList(movieList);
+    }
+
     private void loadMovieData(int page) {
         //Get the search string
         String movieToSearch = mMovieSearchEditText.getText().toString();
-        Log.d(TAG, "Movie search: " + movieToSearch);
+        Log.d(TAG, "Movie search: " + movieToSearch + " page: " + page);
 
         mSearchButton.setEnabled(false);
         mMovieListManager.getMovieList(getString(R.string.movies_key), movieToSearch, page, this);

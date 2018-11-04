@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="movies_key" translatable="false" templateMergeStrategy="preserve">
-        YOUR_API_KEY_HERE
+        40dd46c2
     </string>
 </resources>
